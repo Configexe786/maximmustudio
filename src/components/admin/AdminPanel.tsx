@@ -25,20 +25,15 @@ export const AdminPanel = () => {
 
   const fetchData = async () => {
     try {
+      // Fetch all data separately to avoid join issues
       const [channelsResponse, shortsResponse, usersResponse, withdrawalsResponse] = await Promise.all([
         supabase
           .from("channels")
-          .select(`
-            *,
-            profiles!inner(full_name, email)
-          `)
+          .select("*")
           .order("submitted_at", { ascending: false }),
         supabase
           .from("shorts")
-          .select(`
-            *,
-            profiles!inner(full_name, email)
-          `)
+          .select("*")
           .order("submitted_at", { ascending: false }),
         supabase
           .from("profiles")
@@ -46,10 +41,7 @@ export const AdminPanel = () => {
           .order("created_at", { ascending: false }),
         supabase
           .from("withdrawals")
-          .select(`
-            *,
-            profiles!inner(full_name, email)
-          `)
+          .select("*")
           .order("created_at", { ascending: false })
       ]);
 
@@ -58,18 +50,50 @@ export const AdminPanel = () => {
       if (usersResponse.error) throw usersResponse.error;
       if (withdrawalsResponse.error) throw withdrawalsResponse.error;
 
-      setChannels(channelsResponse.data || []);
-      setShorts(shortsResponse.data || []);
+      // Get profile data and create a map for easy lookup
+      const profilesMap = {};
+      (usersResponse.data || []).forEach(profile => {
+        profilesMap[profile.user_id] = profile;
+      });
+
+      // Enhance channels data with profile info
+      const enhancedChannels = (channelsResponse.data || []).map(channel => ({
+        ...channel,
+        profiles: profilesMap[channel.user_id] || { full_name: 'Unknown', email: 'Unknown' }
+      }));
+
+      // Enhance shorts data with profile info
+      const enhancedShorts = (shortsResponse.data || []).map(short => ({
+        ...short,
+        profiles: profilesMap[short.user_id] || { full_name: 'Unknown', email: 'Unknown' }
+      }));
+
+      // Enhance withdrawals data with profile info
+      const enhancedWithdrawals = (withdrawalsResponse.data || []).map(withdrawal => ({
+        ...withdrawal,
+        profiles: profilesMap[withdrawal.user_id] || { full_name: 'Unknown', email: 'Unknown' }
+      }));
+
+      setChannels(enhancedChannels);
+      setShorts(enhancedShorts);
       setUsers(usersResponse.data || []);
-      setWithdrawals(withdrawalsResponse.data || []);
+      setWithdrawals(enhancedWithdrawals);
 
       // Initialize view counts for shorts
       const counts = {};
-      shortsResponse.data?.forEach(short => {
+      enhancedShorts.forEach(short => {
         counts[short.id] = short.views_count || 0;
       });
       setViewCounts(counts);
+
+      // Initialize earnings per view for shorts
+      const earningsMap = {};
+      enhancedShorts.forEach(short => {
+        earningsMap[short.id] = short.earnings_per_view || 0.0001;
+      });
+      setEarningsPerView(earningsMap);
     } catch (error: any) {
+      console.error('Admin fetch error:', error);
       toast({
         title: "Error loading data",
         description: error.message,
@@ -140,24 +164,28 @@ export const AdminPanel = () => {
 
   const updateViewCount = async (shortsId: string) => {
     const newCount = viewCounts[shortsId] || 0;
+    const newEarningsPerView = earningsPerView[shortsId] || 0.0001;
 
     try {
       const { error } = await supabase
         .from("shorts")
-        .update({ views_count: newCount })
+        .update({ 
+          views_count: newCount,
+          earnings_per_view: newEarningsPerView
+        })
         .eq("id", shortsId);
 
       if (error) throw error;
 
       toast({
-        title: "Views updated",
-        description: `View count updated to ${newCount.toLocaleString()}.`,
+        title: "Views and earnings updated",
+        description: `View count: ${newCount.toLocaleString()}, Earnings per view: $${newEarningsPerView}`,
       });
 
       fetchData();
     } catch (error: any) {
       toast({
-        title: "Error updating views",
+        title: "Error updating data",
         description: error.message,
         variant: "destructive",
       });
