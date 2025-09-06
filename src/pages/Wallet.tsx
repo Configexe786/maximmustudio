@@ -63,10 +63,10 @@ export const WalletPage = () => {
     if (!user || !profile) return;
 
     const amount = parseFloat(withdrawForm.amount);
-    if (amount < 10) {
+    if (amount <= 0) {
       toast({
         title: "Invalid amount",
-        description: "Minimum withdrawal amount is $10.00",
+        description: "Please enter a valid amount greater than $0.00",
         variant: "destructive",
       });
       return;
@@ -215,7 +215,7 @@ export const WalletPage = () => {
           <CardHeader>
             <CardTitle>Request Withdrawal</CardTitle>
             <p className="text-sm text-muted-foreground">
-              Minimum withdrawal amount is $10.00
+              Enter the amount you wish to withdraw
             </p>
           </CardHeader>
           <CardContent>
@@ -227,7 +227,7 @@ export const WalletPage = () => {
                     id="amount"
                     type="number"
                     step="0.01"
-                    min="10"
+                    min="0.01"
                     max={profile?.earnings || 0}
                     placeholder="Enter amount"
                     value={withdrawForm.amount}
@@ -278,7 +278,7 @@ export const WalletPage = () => {
               <Button 
                 type="submit" 
                 className="w-full"
-                disabled={isSubmitting || !profile?.earnings || profile?.earnings < 10}
+                disabled={isSubmitting}
               >
                 {isSubmitting ? "Submitting..." : "Submit Withdrawal Request"}
               </Button>

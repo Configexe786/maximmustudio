@@ -231,9 +231,8 @@ export const UserDashboard = () => {
               <Button 
                 className="w-full"
                 onClick={() => window.location.href = '/wallet'}
-                disabled={stats.earnings < 10}
               >
-                {stats.earnings >= 10 ? 'Withdraw Funds' : 'Minimum $10 to Withdraw'}
+                Withdraw Funds
               </Button>
             </CardContent>
           </Card>

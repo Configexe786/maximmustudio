@@ -91,10 +91,10 @@ export const AuthForm = () => {
       <Card className="w-full max-w-md shadow-glow">
         <CardHeader className="text-center">
           <CardTitle className="text-2xl font-bold bg-gradient-primary bg-clip-text text-transparent">
-            Channel Boost Pro
+            Max Immu Studio
           </CardTitle>
           <CardDescription>
-            Join the platform for creators to promote their channels
+            Join the platform to earn money as a creator.
           </CardDescription>
         </CardHeader>
         

@@ -196,6 +196,64 @@ export const AdminPanel = () => {
     fetchData();
   }, []);
 
+  // Set up real-time subscriptions for all tables
+  useEffect(() => {
+    const channelsSubscription = supabase
+      .channel('admin-channels')
+      .on('postgres_changes', {
+        event: '*',
+        schema: 'public',
+        table: 'channels'
+      }, () => {
+        console.log('Channel changed, refreshing data...');
+        fetchData();
+      })
+      .subscribe();
+
+    const shortsSubscription = supabase
+      .channel('admin-shorts')
+      .on('postgres_changes', {
+        event: '*',
+        schema: 'public',
+        table: 'shorts'
+      }, () => {
+        console.log('Shorts changed, refreshing data...');
+        fetchData();
+      })
+      .subscribe();
+
+    const withdrawalsSubscription = supabase
+      .channel('admin-withdrawals')
+      .on('postgres_changes', {
+        event: '*',
+        schema: 'public',
+        table: 'withdrawals'
+      }, () => {
+        console.log('Withdrawal changed, refreshing data...');
+        fetchData();
+      })
+      .subscribe();
+
+    const profilesSubscription = supabase
+      .channel('admin-profiles')
+      .on('postgres_changes', {
+        event: '*',
+        schema: 'public',
+        table: 'profiles'
+      }, () => {
+        console.log('Profile changed, refreshing data...');
+        fetchData();
+      })
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channelsSubscription);
+      supabase.removeChannel(shortsSubscription);
+      supabase.removeChannel(withdrawalsSubscription);
+      supabase.removeChannel(profilesSubscription);
+    };
+  }, []);
+
   if (isLoading) {
     return (
       <div className="min-h-screen bg-gradient-secondary flex items-center justify-center">
