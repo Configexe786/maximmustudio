@@ -30,14 +30,14 @@ export const AdminPanel = () => {
           .from("channels")
           .select(`
             *,
-            profiles!channels_user_id_fkey(full_name, email)
+            profiles!inner(full_name, email)
           `)
           .order("submitted_at", { ascending: false }),
         supabase
           .from("shorts")
           .select(`
             *,
-            profiles!shorts_user_id_fkey(full_name, email)
+            profiles!inner(full_name, email)
           `)
           .order("submitted_at", { ascending: false }),
         supabase
@@ -48,7 +48,7 @@ export const AdminPanel = () => {
           .from("withdrawals")
           .select(`
             *,
-            profiles!withdrawals_user_id_fkey(full_name, email)
+            profiles!inner(full_name, email)
           `)
           .order("created_at", { ascending: false })
       ]);
