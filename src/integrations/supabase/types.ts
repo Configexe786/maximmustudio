@@ -14,7 +14,111 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      channels: {
+        Row: {
+          admin_remarks: string | null
+          channel_name: string | null
+          channel_url: string
+          id: string
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: string
+          submitted_at: string
+          user_id: string
+        }
+        Insert: {
+          admin_remarks?: string | null
+          channel_name?: string | null
+          channel_url: string
+          id?: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          submitted_at?: string
+          user_id: string
+        }
+        Update: {
+          admin_remarks?: string | null
+          channel_name?: string | null
+          channel_url?: string
+          id?: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          submitted_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          created_at: string
+          email: string | null
+          full_name: string | null
+          id: string
+          is_admin: boolean | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          email?: string | null
+          full_name?: string | null
+          id?: string
+          is_admin?: boolean | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          email?: string | null
+          full_name?: string | null
+          id?: string
+          is_admin?: boolean | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      shorts: {
+        Row: {
+          admin_remarks: string | null
+          id: string
+          reviewed_at: string | null
+          reviewed_by: string | null
+          shorts_url: string
+          status: string
+          submitted_at: string
+          title: string | null
+          user_id: string
+          views_count: number | null
+        }
+        Insert: {
+          admin_remarks?: string | null
+          id?: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          shorts_url: string
+          status?: string
+          submitted_at?: string
+          title?: string | null
+          user_id: string
+          views_count?: number | null
+        }
+        Update: {
+          admin_remarks?: string | null
+          id?: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          shorts_url?: string
+          status?: string
+          submitted_at?: string
+          title?: string | null
+          user_id?: string
+          views_count?: number | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
