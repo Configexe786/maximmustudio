@@ -14,14 +14,15 @@ export const UserDashboard = () => {
   const { toast } = useToast();
   const [channels, setChannels] = useState([]);
   const [shorts, setShorts] = useState([]);
-  const [stats, setStats] = useState({ totalViews: 0, approvedShorts: 0 });
+  const [stats, setStats] = useState({ totalViews: 0, approvedShorts: 0, earnings: 0, totalEarnings: 0 });
+  const [profile, setProfile] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
 
   const fetchData = async () => {
     if (!user) return;
 
     try {
-      const [channelsResponse, shortsResponse] = await Promise.all([
+      const [channelsResponse, shortsResponse, profileResponse] = await Promise.all([
         supabase
           .from("channels")
           .select("*")
@@ -31,14 +32,21 @@ export const UserDashboard = () => {
           .from("shorts")
           .select("*")
           .eq("user_id", user.id)
-          .order("submitted_at", { ascending: false })
+          .order("submitted_at", { ascending: false }),
+        supabase
+          .from("profiles")
+          .select("*")
+          .eq("user_id", user.id)
+          .single()
       ]);
 
       if (channelsResponse.error) throw channelsResponse.error;
       if (shortsResponse.error) throw shortsResponse.error;
+      if (profileResponse.error) throw profileResponse.error;
 
       setChannels(channelsResponse.data || []);
       setShorts(shortsResponse.data || []);
+      setProfile(profileResponse.data);
 
       // Calculate stats
       const approvedShorts = shortsResponse.data?.filter(s => s.status === "approved") || [];
@@ -47,6 +55,8 @@ export const UserDashboard = () => {
       setStats({
         totalViews,
         approvedShorts: approvedShorts.length,
+        earnings: profileResponse.data?.earnings || 0,
+        totalEarnings: profileResponse.data?.total_earnings || 0,
       });
     } catch (error: any) {
       toast({
@@ -124,7 +134,7 @@ export const UserDashboard = () => {
                 <BarChart3 className="h-6 w-6 text-primary-foreground" />
               </div>
               <div>
-                <h1 className="text-xl font-bold text-foreground">Channel Boost Pro</h1>
+                <h1 className="text-xl font-bold text-foreground">Max Immu Studio</h1>
                 <p className="text-sm text-muted-foreground">Creator Dashboard</p>
               </div>
             </div>
@@ -180,12 +190,12 @@ export const UserDashboard = () => {
           <Card className="shadow-medium">
             <CardHeader className="pb-2">
               <CardTitle className="text-sm font-medium text-muted-foreground">
-                Total Submissions
+                Available Balance
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-accent">
-                {channels.length + shorts.length}
+              <div className="text-2xl font-bold text-success">
+                ${stats.earnings.toFixed(2)}
               </div>
             </CardContent>
           </Card>
@@ -193,8 +203,40 @@ export const UserDashboard = () => {
 
         {/* Submission Forms */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-          <ChannelSubmissionForm onSubmissionSuccess={fetchData} />
-          <ShortsSubmissionForm onSubmissionSuccess={fetchData} />
+          {/* Show channel submission if no approved channel exists */}
+          {!channels.some(c => c.status === 'approved') ? (
+            <ChannelSubmissionForm onSubmissionSuccess={fetchData} />
+          ) : (
+            <ShortsSubmissionForm onSubmissionSuccess={fetchData} />
+          )}
+          
+          {/* Wallet/Earnings Card */}
+          <Card className="shadow-medium">
+            <CardHeader>
+              <CardTitle className="text-lg font-semibold text-foreground flex items-center gap-2">
+                💰 Wallet & Earnings
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <p className="text-sm text-muted-foreground">Available Balance</p>
+                  <p className="text-2xl font-bold text-success">${stats.earnings.toFixed(2)}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-muted-foreground">Total Earned</p>
+                  <p className="text-2xl font-bold text-primary">${stats.totalEarnings.toFixed(2)}</p>
+                </div>
+              </div>
+              <Button 
+                className="w-full"
+                onClick={() => window.location.href = '/wallet'}
+                disabled={stats.earnings < 10}
+              >
+                {stats.earnings >= 10 ? 'Withdraw Funds' : 'Minimum $10 to Withdraw'}
+              </Button>
+            </CardContent>
+          </Card>
         </div>
 
         {/* Submissions List */}

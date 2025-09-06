@@ -53,28 +53,34 @@ export type Database = {
       profiles: {
         Row: {
           created_at: string
+          earnings: number | null
           email: string | null
           full_name: string | null
           id: string
           is_admin: boolean | null
+          total_earnings: number | null
           updated_at: string
           user_id: string
         }
         Insert: {
           created_at?: string
+          earnings?: number | null
           email?: string | null
           full_name?: string | null
           id?: string
           is_admin?: boolean | null
+          total_earnings?: number | null
           updated_at?: string
           user_id: string
         }
         Update: {
           created_at?: string
+          earnings?: number | null
           email?: string | null
           full_name?: string | null
           id?: string
           is_admin?: boolean | null
+          total_earnings?: number | null
           updated_at?: string
           user_id?: string
         }
@@ -83,6 +89,7 @@ export type Database = {
       shorts: {
         Row: {
           admin_remarks: string | null
+          earnings_per_view: number | null
           id: string
           reviewed_at: string | null
           reviewed_by: string | null
@@ -95,6 +102,7 @@ export type Database = {
         }
         Insert: {
           admin_remarks?: string | null
+          earnings_per_view?: number | null
           id?: string
           reviewed_at?: string | null
           reviewed_by?: string | null
@@ -107,6 +115,7 @@ export type Database = {
         }
         Update: {
           admin_remarks?: string | null
+          earnings_per_view?: number | null
           id?: string
           reviewed_at?: string | null
           reviewed_by?: string | null
@@ -119,12 +128,64 @@ export type Database = {
         }
         Relationships: []
       }
+      withdrawals: {
+        Row: {
+          admin_remarks: string | null
+          amount: number
+          bank_account_name: string
+          bank_account_number: string
+          bank_name: string
+          created_at: string
+          id: string
+          processed_at: string | null
+          processed_by: string | null
+          routing_number: string | null
+          status: string
+          user_id: string
+        }
+        Insert: {
+          admin_remarks?: string | null
+          amount: number
+          bank_account_name: string
+          bank_account_number: string
+          bank_name: string
+          created_at?: string
+          id?: string
+          processed_at?: string | null
+          processed_by?: string | null
+          routing_number?: string | null
+          status?: string
+          user_id: string
+        }
+        Update: {
+          admin_remarks?: string | null
+          amount?: number
+          bank_account_name?: string
+          bank_account_number?: string
+          bank_name?: string
+          created_at?: string
+          id?: string
+          processed_at?: string | null
+          processed_by?: string | null
+          routing_number?: string | null
+          status?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      is_admin_user: {
+        Args: Record<PropertyKey, never>
+        Returns: boolean
+      }
+      is_specific_admin: {
+        Args: Record<PropertyKey, never>
+        Returns: boolean
+      }
     }
     Enums: {
       [_ in never]: never

@@ -2,7 +2,7 @@ import { Badge } from "@/components/ui/badge";
 import { CheckCircle, Clock, XCircle } from "lucide-react";
 
 interface StatusBadgeProps {
-  status: "pending" | "approved" | "rejected";
+  status: "pending" | "approved" | "rejected" | "completed";
   className?: string;
 }
 
@@ -25,6 +25,12 @@ export const StatusBadge = ({ status, className }: StatusBadgeProps) => {
       variant: "destructive" as const,
       icon: XCircle,
       className: "bg-destructive text-destructive-foreground",
+    },
+    completed: {
+      label: "Completed",
+      variant: "default" as const,
+      icon: CheckCircle,
+      className: "bg-primary text-primary-foreground",
     },
   };
 

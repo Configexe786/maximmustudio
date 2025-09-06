@@ -10,6 +10,7 @@ import { StatusBadge } from "@/components/ui/StatusBadge";
 import { useToast } from "@/hooks/use-toast";
 import { formatDistanceToNow } from "date-fns";
 import { Check, X, Eye, Users, ExternalLink } from "lucide-react";
+import { WithdrawalManagement } from "./WithdrawalManagement";
 
 export const AdminPanel = () => {
   const { user } = useAuth();
@@ -19,10 +20,12 @@ export const AdminPanel = () => {
   const [users, setUsers] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [viewCounts, setViewCounts] = useState<{ [key: string]: number }>({});
+  const [earningsPerView, setEarningsPerView] = useState<{ [key: string]: number }>({});
+  const [withdrawals, setWithdrawals] = useState([]);
 
   const fetchData = async () => {
     try {
-      const [channelsResponse, shortsResponse, usersResponse] = await Promise.all([
+      const [channelsResponse, shortsResponse, usersResponse, withdrawalsResponse] = await Promise.all([
         supabase
           .from("channels")
           .select(`
@@ -40,16 +43,25 @@ export const AdminPanel = () => {
         supabase
           .from("profiles")
           .select("*")
+          .order("created_at", { ascending: false }),
+        supabase
+          .from("withdrawals")
+          .select(`
+            *,
+            profiles!withdrawals_user_id_fkey(full_name, email)
+          `)
           .order("created_at", { ascending: false })
       ]);
 
       if (channelsResponse.error) throw channelsResponse.error;
       if (shortsResponse.error) throw shortsResponse.error;
       if (usersResponse.error) throw usersResponse.error;
+      if (withdrawalsResponse.error) throw withdrawalsResponse.error;
 
       setChannels(channelsResponse.data || []);
       setShorts(shortsResponse.data || []);
       setUsers(usersResponse.data || []);
+      setWithdrawals(withdrawalsResponse.data || []);
 
       // Initialize view counts for shorts
       const counts = {};
@@ -172,7 +184,7 @@ export const AdminPanel = () => {
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-2xl">
               <Users className="h-6 w-6 text-primary" />
-              Admin Panel
+              Max Immu Studio - Admin Panel
             </CardTitle>
           </CardHeader>
         </Card>
@@ -291,19 +303,40 @@ export const AdminPanel = () => {
                   </div>
 
                   {short.status === "approved" && (
-                    <div className="flex items-center gap-2">
-                      <Label htmlFor={`views-${short.id}`} className="text-sm font-medium">
-                        <Eye className="h-4 w-4 inline mr-1" />
-                        Views:
-                      </Label>
-                      <Input
-                        id={`views-${short.id}`}
-                        type="number"
-                        value={viewCounts[short.id] || 0}
-                        onChange={(e) => setViewCounts(prev => ({ ...prev, [short.id]: parseInt(e.target.value) || 0 }))}
-                        className="w-32"
-                        min="0"
-                      />
+                    <div className="space-y-3">
+                      <div className="flex items-center gap-2">
+                        <Label htmlFor={`views-${short.id}`} className="text-sm font-medium">
+                          <Eye className="h-4 w-4 inline mr-1" />
+                          Views:
+                        </Label>
+                        <Input
+                          id={`views-${short.id}`}
+                          type="number"
+                          value={viewCounts[short.id] !== undefined ? viewCounts[short.id] : (short.views_count || 0)}
+                          onChange={(e) => setViewCounts(prev => ({ ...prev, [short.id]: parseInt(e.target.value) || 0 }))}
+                          className="w-32"
+                          min="0"
+                        />
+                      </div>
+                      
+                      <div className="flex items-center gap-2">
+                        <Label htmlFor={`earnings-${short.id}`} className="text-sm font-medium">
+                          💰 Earnings per View ($):
+                        </Label>
+                        <Input
+                          id={`earnings-${short.id}`}
+                          type="number"
+                          step="0.0001"
+                          min="0"
+                          value={earningsPerView[short.id] !== undefined ? earningsPerView[short.id] : (short.earnings_per_view || 0.0001)}
+                          onChange={(e) => setEarningsPerView(prev => ({ 
+                            ...prev, 
+                            [short.id]: parseFloat(e.target.value) || 0 
+                          }))}
+                          className="w-32"
+                          placeholder="0.0001"
+                        />
+                      </div>
                       <Button
                         size="sm"
                         onClick={() => updateViewCount(short.id)}
@@ -348,6 +381,9 @@ export const AdminPanel = () => {
             </div>
           </CardContent>
         </Card>
+
+        {/* Withdrawal Management */}
+        <WithdrawalManagement withdrawals={withdrawals} onUpdate={fetchData} />
       </div>
     </div>
   );
