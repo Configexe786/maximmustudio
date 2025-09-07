@@ -23,6 +23,7 @@ export const WalletPage = () => {
     bank_account_number: "",
     bank_name: "",
     routing_number: "",
+    ifsc_code: "",
   });
 
   const fetchData = async () => {
@@ -63,10 +64,19 @@ export const WalletPage = () => {
     if (!user || !profile) return;
 
     const amount = parseFloat(withdrawForm.amount);
-    if (amount <= 0) {
+    if (amount < 10) {
       toast({
         title: "Invalid amount",
-        description: "Please enter a valid amount greater than $0.00",
+        description: "Minimum withdrawal amount is $10.00",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (amount > (profile?.earnings || 0)) {
+      toast({
+        title: "Insufficient balance",
+        description: "You don't have enough earnings to withdraw this amount",
         variant: "destructive",
       });
       return;
@@ -92,6 +102,7 @@ export const WalletPage = () => {
           bank_account_number: withdrawForm.bank_account_number,
           bank_name: withdrawForm.bank_name,
           routing_number: withdrawForm.routing_number,
+          ifsc_code: withdrawForm.ifsc_code,
         });
 
       if (withdrawError) throw withdrawError;
@@ -115,6 +126,7 @@ export const WalletPage = () => {
         bank_account_number: "",
         bank_name: "",
         routing_number: "",
+        ifsc_code: "",
       });
 
       fetchData();
@@ -215,7 +227,7 @@ export const WalletPage = () => {
           <CardHeader>
             <CardTitle>Request Withdrawal</CardTitle>
             <p className="text-sm text-muted-foreground">
-              Enter the amount you wish to withdraw
+              Minimum withdrawal amount is $10.00
             </p>
           </CardHeader>
           <CardContent>
@@ -227,7 +239,7 @@ export const WalletPage = () => {
                     id="amount"
                     type="number"
                     step="0.01"
-                    min="0.01"
+                    min="10"
                     max={profile?.earnings || 0}
                     placeholder="Enter amount"
                     value={withdrawForm.amount}
@@ -274,11 +286,21 @@ export const WalletPage = () => {
                     onChange={(e) => setWithdrawForm(prev => ({ ...prev, routing_number: e.target.value }))}
                   />
                 </div>
+                <div>
+                  <Label htmlFor="ifsc_code">IFSC Code</Label>
+                  <Input
+                    id="ifsc_code"
+                    placeholder="Enter IFSC code"
+                    value={withdrawForm.ifsc_code}
+                    onChange={(e) => setWithdrawForm(prev => ({ ...prev, ifsc_code: e.target.value }))}
+                    required
+                  />
+                </div>
               </div>
               <Button 
                 type="submit" 
                 className="w-full"
-                disabled={isSubmitting}
+                disabled={isSubmitting || !profile?.earnings || profile?.earnings < 10}
               >
                 {isSubmitting ? "Submitting..." : "Submit Withdrawal Request"}
               </Button>

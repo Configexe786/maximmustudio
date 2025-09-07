@@ -137,6 +137,7 @@ export type Database = {
           bank_name: string
           created_at: string
           id: string
+          ifsc_code: string | null
           processed_at: string | null
           processed_by: string | null
           routing_number: string | null
@@ -151,6 +152,7 @@ export type Database = {
           bank_name: string
           created_at?: string
           id?: string
+          ifsc_code?: string | null
           processed_at?: string | null
           processed_by?: string | null
           routing_number?: string | null
@@ -165,6 +167,7 @@ export type Database = {
           bank_name?: string
           created_at?: string
           id?: string
+          ifsc_code?: string | null
           processed_at?: string | null
           processed_by?: string | null
           routing_number?: string | null

@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/components/auth/AuthProvider";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
+import { WalletPage } from "./pages/Wallet";
 
 const queryClient = new QueryClient();
 
@@ -18,6 +19,7 @@ const App = () => (
         <BrowserRouter>
           <Routes>
             <Route path="/" element={<Index />} />
+            <Route path="/wallet" element={<WalletPage />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
