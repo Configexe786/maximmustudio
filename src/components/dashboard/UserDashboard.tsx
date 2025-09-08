@@ -231,15 +231,7 @@ export const UserDashboard = () => {
               <Button 
                 className="w-full"
                 onClick={() => {
-                  if (stats.earnings >= 0) {
-                    window.location.href = '/wallet';
-                  } else {
-                    toast({
-                      title: "Insufficient Balance",
-                      description: "Minimum withdrawal is ₹500.",
-                      variant: "destructive",
-                    });
-                  }
+                  window.location.href = '/wallet';
                 }}
               >
                 Withdraw Funds
