@@ -234,7 +234,11 @@ export const UserDashboard = () => {
                   if (stats.earnings >= 500) {
                     window.location.href = '/wallet';
                   } else {
-                    alert("Insufficient Balance. Minimum withdrawal is ₹500.");
+                    toast({
+                      title: "Insufficient Balance",
+                      description: "Minimum withdrawal is ₹500.",
+                      variant: "destructive",
+                    });
                   }
                 }}
               >
