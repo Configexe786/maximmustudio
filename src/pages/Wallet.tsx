@@ -64,9 +64,19 @@ export const WalletPage = () => {
     if (!user || !profile) return;
 
     const amount = parseFloat(withdrawForm.amount);
+
+    if (isNaN(amount) || amount <= 0) {
+      toast({
+        title: "Invalid Amount",
+        description: "Please enter a valid withdrawal amount",
+        variant: "destructive",
+      });
+      return;
+    }
+
     if (amount < 500) {
       toast({
-        title: "Insufficient Balance",
+        title: "Minimum Limit",
         description: "Minimum withdrawal is ₹500",
         variant: "destructive",
       });
@@ -76,7 +86,7 @@ export const WalletPage = () => {
     if (amount > (profile?.earnings || 0)) {
       toast({
         title: "Insufficient Balance",
-        description: "You don't have enough earnings to withdraw this amount",
+        description: "You don't have enough balance to withdraw this amount",
         variant: "destructive",
       });
       return;
@@ -204,7 +214,10 @@ export const WalletPage = () => {
             </CardHeader>
             <CardContent>
               <div className="text-3xl font-bold text-primary">
-                ₹{withdrawals.filter(w => w.status === 'approved').reduce((sum, w) => sum + parseFloat(w.amount || 0), 0).toFixed(2)}
+                ₹{withdrawals
+                  .filter(w => w.status === 'approved')
+                  .reduce((sum, w) => sum + parseFloat(w.amount || 0), 0)
+                  .toFixed(2)}
               </div>
               <p className="text-sm text-muted-foreground mt-1">
                 Successfully withdrawn
@@ -227,11 +240,11 @@ export const WalletPage = () => {
                     id="amount"
                     type="number"
                     step="0.01"
-                    min="500"
-                    max={profile?.earnings || 0}
                     placeholder="Enter amount"
                     value={withdrawForm.amount}
-                    onChange={(e) => setWithdrawForm(prev => ({ ...prev, amount: e.target.value }))}
+                    onChange={(e) =>
+                      setWithdrawForm(prev => ({ ...prev, amount: e.target.value }))
+                    }
                     required
                   />
                 </div>
@@ -241,7 +254,9 @@ export const WalletPage = () => {
                     id="bank_name"
                     placeholder="Enter bank name"
                     value={withdrawForm.bank_name}
-                    onChange={(e) => setWithdrawForm(prev => ({ ...prev, bank_name: e.target.value }))}
+                    onChange={(e) =>
+                      setWithdrawForm(prev => ({ ...prev, bank_name: e.target.value }))
+                    }
                     required
                   />
                 </div>
@@ -251,7 +266,9 @@ export const WalletPage = () => {
                     id="account_name"
                     placeholder="Enter account holder name"
                     value={withdrawForm.bank_account_name}
-                    onChange={(e) => setWithdrawForm(prev => ({ ...prev, bank_account_name: e.target.value }))}
+                    onChange={(e) =>
+                      setWithdrawForm(prev => ({ ...prev, bank_account_name: e.target.value }))
+                    }
                     required
                   />
                 </div>
@@ -261,7 +278,9 @@ export const WalletPage = () => {
                     id="account_number"
                     placeholder="Enter account number"
                     value={withdrawForm.bank_account_number}
-                    onChange={(e) => setWithdrawForm(prev => ({ ...prev, bank_account_number: e.target.value }))}
+                    onChange={(e) =>
+                      setWithdrawForm(prev => ({ ...prev, bank_account_number: e.target.value }))
+                    }
                     required
                   />
                 </div>
@@ -271,7 +290,9 @@ export const WalletPage = () => {
                     id="routing_number"
                     placeholder="Enter routing number"
                     value={withdrawForm.routing_number}
-                    onChange={(e) => setWithdrawForm(prev => ({ ...prev, routing_number: e.target.value }))}
+                    onChange={(e) =>
+                      setWithdrawForm(prev => ({ ...prev, routing_number: e.target.value }))
+                    }
                   />
                 </div>
                 <div>
@@ -280,15 +301,17 @@ export const WalletPage = () => {
                     id="ifsc_code"
                     placeholder="Enter IFSC code"
                     value={withdrawForm.ifsc_code}
-                    onChange={(e) => setWithdrawForm(prev => ({ ...prev, ifsc_code: e.target.value }))}
+                    onChange={(e) =>
+                      setWithdrawForm(prev => ({ ...prev, ifsc_code: e.target.value }))
+                    }
                     required
                   />
                 </div>
               </div>
-              <Button 
-                type="submit" 
+              <Button
+                type="submit"
                 className="w-full"
-                disabled={false}
+                disabled={isSubmitting}
               >
                 {isSubmitting ? "Submitting..." : "Submit Withdrawal Request"}
               </Button>
@@ -309,7 +332,7 @@ export const WalletPage = () => {
             ) : (
               <div className="space-y-4">
                 {withdrawals.map((withdrawal) => (
-                  <div 
+                  <div
                     key={withdrawal.id}
                     className="flex items-center justify-between p-4 border border-border rounded-lg"
                   >
