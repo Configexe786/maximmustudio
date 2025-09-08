@@ -216,10 +216,7 @@ export const WalletPage = () => {
         {/* Withdrawal Form */}
         <Card className="shadow-medium mb-8">
           <CardHeader>
-            <CardTitle>Request Withdrawal</CardTitle>
-            <p className="text-sm text-muted-foreground">
-              Minimum withdrawal amount is ₹500.00
-            </p>
+            <CardTitle>Withdraw Funds</CardTitle>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleWithdrawSubmit} className="space-y-4">
