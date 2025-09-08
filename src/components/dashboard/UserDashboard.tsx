@@ -231,7 +231,7 @@ export const UserDashboard = () => {
               <Button 
                 className="w-full"
                 onClick={() => {
-                  if (stats.earnings >= 500) {
+                  if (stats.earnings >= 0) {
                     window.location.href = '/wallet';
                   } else {
                     toast({
