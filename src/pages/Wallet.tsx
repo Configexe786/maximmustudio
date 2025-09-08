@@ -288,7 +288,7 @@ export const WalletPage = () => {
               <Button 
                 type="submit" 
                 className="w-full"
-                disabled={isSubmitting}
+                disabled={false}
               >
                 {isSubmitting ? "Submitting..." : "Submit Withdrawal Request"}
               </Button>
