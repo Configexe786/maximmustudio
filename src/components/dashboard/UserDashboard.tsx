@@ -225,7 +225,7 @@ export const UserDashboard = () => {
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground">Total Withdrawal</p>
-                  <p className="text-2xl font-bold text-primary">₹{stats.totalEarnings.toFixed(2)}</p>
+                  <p className="text-2xl font-bold text-primary">₹{stats.totalWithdrawal.toFixed(2)}</p>
                 </div>
               </div>
               <Button 
