@@ -14,7 +14,13 @@ export const UserDashboard = () => {
   const { toast } = useToast();
   const [channels, setChannels] = useState([]);
   const [shorts, setShorts] = useState([]);
-  const [stats, setStats] = useState({ totalViews: 0, approvedShorts: 0, earnings: 0, totalEarnings: 0 });
+  const [withdrawals, setWithdrawals] = useState([]);
+  const [stats, setStats] = useState({
+    totalViews: 0,
+    approvedShorts: 0,
+    earnings: 0,
+    totalWithdrawals: 0,
+  });
   const [profile, setProfile] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -22,7 +28,7 @@ export const UserDashboard = () => {
     if (!user) return;
 
     try {
-      const [channelsResponse, shortsResponse, profileResponse] = await Promise.all([
+      const [channelsResponse, shortsResponse, profileResponse, withdrawalsResponse] = await Promise.all([
         supabase
           .from("channels")
           .select("*")
@@ -37,26 +43,38 @@ export const UserDashboard = () => {
           .from("profiles")
           .select("*")
           .eq("user_id", user.id)
-          .single()
+          .single(),
+        supabase
+          .from("withdrawals")
+          .select("*")
+          .eq("user_id", user.id)
+          .eq("status", "approved"),
       ]);
 
       if (channelsResponse.error) throw channelsResponse.error;
       if (shortsResponse.error) throw shortsResponse.error;
       if (profileResponse.error) throw profileResponse.error;
+      if (withdrawalsResponse.error) throw withdrawalsResponse.error;
 
       setChannels(channelsResponse.data || []);
       setShorts(shortsResponse.data || []);
       setProfile(profileResponse.data);
+      setWithdrawals(withdrawalsResponse.data || []);
 
       // Calculate stats
       const approvedShorts = shortsResponse.data?.filter(s => s.status === "approved") || [];
       const totalViews = approvedShorts.reduce((sum, short) => sum + (short.views_count || 0), 0);
-      
+
+      const totalWithdrawals = withdrawalsResponse.data?.reduce(
+        (sum, w) => sum + parseFloat(w.amount || 0),
+        0
+      ) || 0;
+
       setStats({
         totalViews,
         approvedShorts: approvedShorts.length,
         earnings: profileResponse.data?.earnings || 0,
-        totalEarnings: profileResponse.data?.total_earnings || 0,
+        totalWithdrawals,
       });
     } catch (error: any) {
       toast({
@@ -81,7 +99,7 @@ export const UserDashboard = () => {
     fetchData();
   }, [user]);
 
-  // Set up real-time subscriptions
+  // Real-time updates
   useEffect(() => {
     if (!user) return;
 
@@ -109,9 +127,22 @@ export const UserDashboard = () => {
       })
       .subscribe();
 
+    const withdrawalsSubscription = supabase
+      .channel('user-withdrawals')
+      .on('postgres_changes', {
+        event: '*',
+        schema: 'public',
+        table: 'withdrawals',
+        filter: `user_id=eq.${user.id}`
+      }, () => {
+        fetchData();
+      })
+      .subscribe();
+
     return () => {
       supabase.removeChannel(channelsSubscription);
       supabase.removeChannel(shortsSubscription);
+      supabase.removeChannel(withdrawalsSubscription);
     };
   }, [user]);
 
@@ -225,7 +256,7 @@ export const UserDashboard = () => {
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground">Total Withdrawal</p>
-                  <p className="text-2xl font-bold text-primary">₹{stats.totalWithdrawal.toFixed(2)}</p>
+                  <p className="text-2xl font-bold text-primary">₹{stats.totalWithdrawals.toFixed(2)}</p>
                 </div>
               </div>
               <Button 
