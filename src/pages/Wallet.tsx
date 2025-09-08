@@ -64,10 +64,10 @@ export const WalletPage = () => {
     if (!user || !profile) return;
 
     const amount = parseFloat(withdrawForm.amount);
-    if (amount < 10) {
+    if (amount < 500) {
       toast({
-        title: "Invalid amount",
-        description: "Minimum withdrawal amount is ₹10.00",
+        title: "Insufficient Balance",
+        description: "Minimum withdrawal is ₹500",
         variant: "destructive",
       });
       return;
@@ -208,15 +208,15 @@ export const WalletPage = () => {
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-primary">
                 <CreditCard className="h-5 w-5" />
-                Total Earned
+                Total Withdrawal
               </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="text-3xl font-bold text-primary">
-                ₹{profile?.total_earnings?.toFixed(2) || "0.00"}
+                ₹{withdrawals.filter(w => w.status === 'approved').reduce((sum, w) => sum + parseFloat(w.amount || 0), 0).toFixed(2)}
               </div>
               <p className="text-sm text-muted-foreground mt-1">
-                Lifetime earnings
+                Successfully withdrawn
               </p>
             </CardContent>
           </Card>
@@ -227,7 +227,7 @@ export const WalletPage = () => {
           <CardHeader>
             <CardTitle>Request Withdrawal</CardTitle>
             <p className="text-sm text-muted-foreground">
-              Minimum withdrawal amount is ₹10.00
+              Minimum withdrawal amount is ₹500.00
             </p>
           </CardHeader>
           <CardContent>
@@ -239,7 +239,7 @@ export const WalletPage = () => {
                     id="amount"
                     type="number"
                     step="0.01"
-                    min="10"
+                    min="500"
                     max={profile?.earnings || 0}
                     placeholder="Enter amount"
                     value={withdrawForm.amount}
@@ -300,7 +300,7 @@ export const WalletPage = () => {
               <Button 
                 type="submit" 
                 className="w-full"
-                disabled={isSubmitting || !profile?.earnings || profile?.earnings < 10}
+                disabled={isSubmitting}
               >
                 {isSubmitting ? "Submitting..." : "Submit Withdrawal Request"}
               </Button>
