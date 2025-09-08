@@ -85,7 +85,7 @@ export const WithdrawalManagement = ({ withdrawals, onUpdate }: WithdrawalManage
                       {withdrawal.profiles?.email}
                     </p>
                     <p className="text-lg font-bold text-primary mt-2">
-                      ${withdrawal.amount}
+                      ₹{withdrawal.amount}
                     </p>
                   </div>
                   <div className="text-right">

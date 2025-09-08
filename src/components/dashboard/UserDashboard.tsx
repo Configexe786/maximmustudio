@@ -195,7 +195,7 @@ export const UserDashboard = () => {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold text-success">
-                ${stats.earnings.toFixed(2)}
+                ₹{stats.earnings.toFixed(2)}
               </div>
             </CardContent>
           </Card>
@@ -221,11 +221,11 @@ export const UserDashboard = () => {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <p className="text-sm text-muted-foreground">Available Balance</p>
-                  <p className="text-2xl font-bold text-success">${stats.earnings.toFixed(2)}</p>
+                  <p className="text-2xl font-bold text-success">₹{stats.earnings.toFixed(2)}</p>
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground">Total Earned</p>
-                  <p className="text-2xl font-bold text-primary">${stats.totalEarnings.toFixed(2)}</p>
+                  <p className="text-2xl font-bold text-primary">₹{stats.totalEarnings.toFixed(2)}</p>
                 </div>
               </div>
               <Button 
@@ -233,7 +233,7 @@ export const UserDashboard = () => {
                 onClick={() => window.location.href = '/wallet'}
                 disabled={stats.earnings < 10}
               >
-                {stats.earnings >= 10 ? 'Withdraw Funds' : 'Minimum $10 to Withdraw'}
+                {stats.earnings >= 10 ? 'Withdraw Funds' : 'Minimum ₹10 to Withdraw'}
               </Button>
             </CardContent>
           </Card>

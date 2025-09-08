@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { formatDistanceToNow } from "date-fns";
-import { ArrowLeft, Wallet, DollarSign, CreditCard } from "lucide-react";
+import { ArrowLeft, Wallet, IndianRupee, CreditCard } from "lucide-react";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 
 export const WalletPage = () => {
@@ -67,7 +67,7 @@ export const WalletPage = () => {
     if (amount < 10) {
       toast({
         title: "Invalid amount",
-        description: "Minimum withdrawal amount is $10.00",
+        description: "Minimum withdrawal amount is ₹10.00",
         variant: "destructive",
       });
       return;
@@ -190,13 +190,13 @@ export const WalletPage = () => {
           <Card className="shadow-medium">
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-success">
-                <DollarSign className="h-5 w-5" />
+                <IndianRupee className="h-5 w-5" />
                 Available Balance
               </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="text-3xl font-bold text-success">
-                ${profile?.earnings?.toFixed(2) || "0.00"}
+                ₹{profile?.earnings?.toFixed(2) || "0.00"}
               </div>
               <p className="text-sm text-muted-foreground mt-1">
                 Ready for withdrawal
@@ -213,7 +213,7 @@ export const WalletPage = () => {
             </CardHeader>
             <CardContent>
               <div className="text-3xl font-bold text-primary">
-                ${profile?.total_earnings?.toFixed(2) || "0.00"}
+                ₹{profile?.total_earnings?.toFixed(2) || "0.00"}
               </div>
               <p className="text-sm text-muted-foreground mt-1">
                 Lifetime earnings
@@ -227,14 +227,14 @@ export const WalletPage = () => {
           <CardHeader>
             <CardTitle>Request Withdrawal</CardTitle>
             <p className="text-sm text-muted-foreground">
-              Minimum withdrawal amount is $10.00
+              Minimum withdrawal amount is ₹10.00
             </p>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleWithdrawSubmit} className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <Label htmlFor="amount">Amount ($)</Label>
+                  <Label htmlFor="amount">Amount (₹)</Label>
                   <Input
                     id="amount"
                     type="number"
@@ -326,7 +326,7 @@ export const WalletPage = () => {
                     className="flex items-center justify-between p-4 border border-border rounded-lg"
                   >
                     <div>
-                      <p className="font-medium">${withdrawal.amount}</p>
+                      <p className="font-medium">₹{withdrawal.amount}</p>
                       <p className="text-sm text-muted-foreground">
                         {withdrawal.bank_name} - {withdrawal.bank_account_name}
                       </p>

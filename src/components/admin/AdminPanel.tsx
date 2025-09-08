@@ -20,7 +20,7 @@ export const AdminPanel = () => {
   const [users, setUsers] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [viewCounts, setViewCounts] = useState<{ [key: string]: number }>({});
-  const [earningsPerView, setEarningsPerView] = useState<{ [key: string]: number }>({});
+  const [userEarnings, setUserEarnings] = useState<{ [key: string]: number }>({});
   const [withdrawals, setWithdrawals] = useState([]);
 
   const fetchData = async () => {
@@ -86,12 +86,12 @@ export const AdminPanel = () => {
       });
       setViewCounts(counts);
 
-      // Initialize earnings per view for shorts
+      // Initialize user earnings map
       const earningsMap = {};
-      enhancedShorts.forEach(short => {
-        earningsMap[short.id] = short.earnings_per_view || 0.0001;
+      usersResponse.data?.forEach(user => {
+        earningsMap[user.user_id] = user.earnings || 0;
       });
-      setEarningsPerView(earningsMap);
+      setUserEarnings(earningsMap);
     } catch (error: any) {
       console.error('Admin fetch error:', error);
       toast({
@@ -164,28 +164,54 @@ export const AdminPanel = () => {
 
   const updateViewCount = async (shortsId: string) => {
     const newCount = viewCounts[shortsId] || 0;
-    const newEarningsPerView = earningsPerView[shortsId] || 0.0001;
 
     try {
       const { error } = await supabase
         .from("shorts")
         .update({ 
-          views_count: newCount,
-          earnings_per_view: newEarningsPerView
+          views_count: newCount
         })
         .eq("id", shortsId);
 
       if (error) throw error;
 
       toast({
-        title: "Views and earnings updated",
-        description: `View count: ${newCount.toLocaleString()}, Earnings per view: $${newEarningsPerView}`,
+        title: "Views updated",
+        description: `View count: ${newCount.toLocaleString()}`,
       });
 
       fetchData();
     } catch (error: any) {
       toast({
-        title: "Error updating data",
+        title: "Error updating views",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  };
+
+  const updateUserEarnings = async (userId: string) => {
+    const newEarnings = userEarnings[userId] || 0;
+
+    try {
+      const { error } = await supabase
+        .from("profiles")
+        .update({ 
+          earnings: newEarnings
+        })
+        .eq("user_id", userId);
+
+      if (error) throw error;
+
+      toast({
+        title: "Earnings updated",
+        description: `New earnings: ₹${newEarnings}`,
+      });
+
+      fetchData();
+    } catch (error: any) {
+      toast({
+        title: "Error updating earnings",
         description: error.message,
         variant: "destructive",
       });
@@ -283,12 +309,45 @@ export const AdminPanel = () => {
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {users.map((user: any) => (
-                <div key={user.id} className="p-4 border rounded-lg">
-                  <h4 className="font-medium">{user.full_name || "No name"}</h4>
-                  <p className="text-sm text-muted-foreground">{user.email}</p>
-                  <p className="text-xs text-muted-foreground">
-                    Joined {formatDistanceToNow(new Date(user.created_at))} ago
-                  </p>
+                <div key={user.id} className="p-4 border rounded-lg space-y-3">
+                  <div>
+                    <h4 className="font-medium">{user.full_name || "No name"}</h4>
+                    <p className="text-sm text-muted-foreground">{user.email}</p>
+                    <p className="text-xs text-muted-foreground">
+                      Joined {formatDistanceToNow(new Date(user.created_at))} ago
+                    </p>
+                    <p className="text-sm font-medium text-primary">
+                      Current Earnings: ₹{user.earnings || 0}
+                    </p>
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor={`earnings-${user.user_id}`} className="text-sm font-medium">
+                      💰 Update Earnings (₹):
+                    </Label>
+                    <div className="flex items-center gap-2">
+                      <Input
+                        id={`earnings-${user.user_id}`}
+                        type="number"
+                        step="0.01"
+                        min="0"
+                        value={userEarnings[user.user_id] !== undefined ? userEarnings[user.user_id] : (user.earnings || 0)}
+                        onChange={(e) => setUserEarnings(prev => ({ 
+                          ...prev, 
+                          [user.user_id]: parseFloat(e.target.value) || 0 
+                        }))}
+                        className="w-24"
+                        placeholder="0.00"
+                      />
+                      <Button
+                        size="sm"
+                        onClick={() => updateUserEarnings(user.user_id)}
+                        variant="outline"
+                      >
+                        Update
+                      </Button>
+                    </div>
+                  </div>
                 </div>
               ))}
             </div>
@@ -403,33 +462,14 @@ export const AdminPanel = () => {
                           className="w-32"
                           min="0"
                         />
+                        <Button
+                          size="sm"
+                          onClick={() => updateViewCount(short.id)}
+                          variant="outline"
+                        >
+                          Update Views
+                        </Button>
                       </div>
-                      
-                      <div className="flex items-center gap-2">
-                        <Label htmlFor={`earnings-${short.id}`} className="text-sm font-medium">
-                          💰 Earnings per View ($):
-                        </Label>
-                        <Input
-                          id={`earnings-${short.id}`}
-                          type="number"
-                          step="0.0001"
-                          min="0"
-                          value={earningsPerView[short.id] !== undefined ? earningsPerView[short.id] : (short.earnings_per_view || 0.0001)}
-                          onChange={(e) => setEarningsPerView(prev => ({ 
-                            ...prev, 
-                            [short.id]: parseFloat(e.target.value) || 0 
-                          }))}
-                          className="w-32"
-                          placeholder="0.0001"
-                        />
-                      </div>
-                      <Button
-                        size="sm"
-                        onClick={() => updateViewCount(short.id)}
-                        variant="outline"
-                      >
-                        Update
-                      </Button>
                     </div>
                   )}
                   
