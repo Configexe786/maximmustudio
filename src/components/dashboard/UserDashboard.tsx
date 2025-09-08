@@ -224,16 +224,21 @@ export const UserDashboard = () => {
                   <p className="text-2xl font-bold text-success">₹{stats.earnings.toFixed(2)}</p>
                 </div>
                 <div>
-                  <p className="text-sm text-muted-foreground">Total Earned</p>
+                  <p className="text-sm text-muted-foreground">Total Withdrawal</p>
                   <p className="text-2xl font-bold text-primary">₹{stats.totalEarnings.toFixed(2)}</p>
                 </div>
               </div>
               <Button 
                 className="w-full"
-                onClick={() => window.location.href = '/wallet'}
-                disabled={stats.earnings < 10}
+                onClick={() => {
+                  if (stats.earnings >= 500) {
+                    window.location.href = '/wallet';
+                  } else {
+                    alert("Insufficient Balance. Minimum withdrawal is ₹500.");
+                  }
+                }}
               >
-                {stats.earnings >= 10 ? 'Withdraw Funds' : 'Minimum ₹10 to Withdraw'}
+                Withdraw Funds
               </Button>
             </CardContent>
           </Card>
