@@ -75,17 +75,8 @@ export const WalletPage = () => {
 
     if (amount > (profile?.earnings || 0)) {
       toast({
-        title: "Insufficient balance",
+        title: "Insufficient Balance",
         description: "You don't have enough earnings to withdraw this amount",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    if (amount > profile.earnings) {
-      toast({
-        title: "Insufficient funds",
-        description: "You don't have enough balance for this withdrawal",
         variant: "destructive",
       });
       return;
